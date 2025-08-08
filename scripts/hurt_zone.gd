@@ -11,6 +11,7 @@ func _on_body_entered(body: Node2D) -> void:
 		if body.is_dead:
 			# Slow game on death
 			Engine.time_scale = 0.5
+			body.get_node("AnimationPlayer").play("death")
 			death_timer.start()
 
 func _on_death_timer_timeout() -> void:

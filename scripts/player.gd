@@ -8,6 +8,7 @@ extends CharacterBody2D
 @onready var roll_duration_timer: Timer = $Roll/RollDurationTimer
 @onready var roll_cooldown_timer: Timer = $Roll/RollCooldownTimer
 @onready var hit_invulnerability_timer: Timer = $HitInvulnerabilityTimer
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
 
 # Custom Signals
 signal health_changed
@@ -16,7 +17,7 @@ signal health_changed
 const RUN_SPEED = 130.0
 const JUMP_VELOCITY = -300.0
 const KNOCK_SPEED = 100.0
-const KNOCK_VELOCITY = -150.0
+const KNOCK_VELOCITY = -200.0
 const FRICTION = 80.0
 
 var direction: int = 0
@@ -80,11 +81,13 @@ func animate() -> void:
 	# Play respective animations
 	if is_dead:
 		if player_sprite.animation != "death":
+			animation_player.play("death")
 			player_sprite.play("death")
 		return
 	
 	if is_dashing:
 		if player_sprite.animation != "dash":
+			animation_player.play("dash")
 			player_sprite.play("dash")
 		return
 	
@@ -95,6 +98,7 @@ func animate() -> void:
 	
 	if is_hit:
 		if player_sprite.animation != "hit":
+			animation_player.play("hurt")
 			player_sprite.play("hit")
 		return
 	
@@ -107,9 +111,11 @@ func animate() -> void:
 	if not is_on_floor():
 		if double_jumps < 1:
 			if player_sprite.animation != "jump":
+				animation_player.play("jump")
 				player_sprite.play("jump")
 		else:
 			if player_sprite.animation != "double_jump":
+				animation_player.play("jump")
 				player_sprite.play("double_jump")
 	 
 func add_gravity(delta: float) -> void:
@@ -216,8 +222,16 @@ func get_hit() -> void:
 
 func knockback() -> void:
 	# Bounce away upon hit
-	velocity.y = KNOCK_VELOCITY
-	velocity.x = -1 * direction * KNOCK_SPEED
+	if direction == 0:
+		var knock_direction = 1 if not player_sprite.flip_h else -1
+		velocity.y = KNOCK_VELOCITY
+		velocity.x = -1 * knock_direction * KNOCK_SPEED
+	else:
+		velocity.y = KNOCK_VELOCITY
+		velocity.x = -1 * direction * KNOCK_SPEED
+
+func bounce() -> void:
+	velocity.y = -280.0
 
 func hit_stop(time_scale, duration) -> void:
 	Engine.time_scale = time_scale
@@ -230,6 +244,9 @@ func death() -> void:
 func is_invulnerable() -> bool:
 	# May have more stuff later on besides dashing
 	return is_dashing or is_hit or is_rolling
+
+func is_falling() -> bool:
+	return not is_on_floor() and velocity.y > 0
 
 func _on_dash_duration_timer_timeout() -> void:
 	is_dashing = false

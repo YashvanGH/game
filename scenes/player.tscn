@@ -1,10 +1,14 @@
-[gd_scene load_steps=49 format=3 uid="uid://d00tcpjo8mypl"]
+[gd_scene load_steps=59 format=3 uid="uid://d00tcpjo8mypl"]
 
 [ext_resource type="Texture2D" uid="uid://bmsgvfgyufyt2" path="res://assets/sprites/knight.png" id="1_4flbx"]
 [ext_resource type="Script" uid="uid://wn4nakfyd74i" path="res://scripts/player.gd" id="1_g2els"]
 [ext_resource type="Script" uid="uid://bf6vty0orqj3e" path="res://scripts/health_bar.gd" id="3_qhqgy"]
 [ext_resource type="Texture2D" uid="uid://imaqn6ssl8iy" path="res://assets/sprites/healthbar_under.png" id="4_qlg0r"]
 [ext_resource type="Texture2D" uid="uid://bkod5qv5hp8rk" path="res://assets/sprites/healthbar_progress.png" id="5_tuyoq"]
+[ext_resource type="AudioStream" uid="uid://covw0tegqydx0" path="res://assets/sounds/death.wav" id="6_smehm"]
+[ext_resource type="AudioStream" uid="uid://dw6dy5o8xymce" path="res://assets/sounds/jump.wav" id="7_fjrip"]
+[ext_resource type="AudioStream" uid="uid://ci0lcj3v7e21l" path="res://assets/sounds/hurt.wav" id="8_smehm"]
+[ext_resource type="AudioStream" uid="uid://cjnrtpb1mg42" path="res://assets/sounds/dash.wav" id="9_ur7pv"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jej6c"]
 atlas = ExtResource("1_4flbx")
@@ -342,6 +346,105 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_efrwb"]
 radius = 6.0
 
+[sub_resource type="Animation" id="Animation_fjrip"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlayerSFX/JumpSound:playing")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("PlayerSFX/DashSound:playing")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_y4r1p"]
+resource_name = "dash"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlayerSFX/DashSound:playing")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_qlg0r"]
+resource_name = "death"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlayerSFX/DeathSound:playing")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_ur7pv"]
+resource_name = "hurt"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlayerSFX/HurtSound:playing")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_smehm"]
+resource_name = "jump\\"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("PlayerSFX/JumpSound:playing")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_tuyoq"]
+_data = {
+&"RESET": SubResource("Animation_fjrip"),
+&"dash": SubResource("Animation_y4r1p"),
+&"death": SubResource("Animation_qlg0r"),
+&"hurt": SubResource("Animation_ur7pv"),
+&"jump": SubResource("Animation_smehm")
+}
+
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
 script = ExtResource("1_g2els")
@@ -350,8 +453,7 @@ script = ExtResource("1_g2els")
 z_index = 5
 position = Vector2(0, -13)
 sprite_frames = SubResource("SpriteFrames_634y6")
-animation = &"hit"
-autoplay = "idle"
+animation = &"idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -7)
@@ -401,6 +503,28 @@ player = NodePath("../..")
 metadata/_edit_use_anchors_ = true
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_tuyoq")
+}
+
+[node name="PlayerSFX" type="Node2D" parent="."]
+
+[node name="DeathSound" type="AudioStreamPlayer2D" parent="PlayerSFX"]
+stream = ExtResource("6_smehm")
+bus = &"SFX"
+
+[node name="JumpSound" type="AudioStreamPlayer2D" parent="PlayerSFX"]
+stream = ExtResource("7_fjrip")
+bus = &"SFX"
+
+[node name="HurtSound" type="AudioStreamPlayer2D" parent="PlayerSFX"]
+stream = ExtResource("8_smehm")
+bus = &"SFX"
+
+[node name="DashSound" type="AudioStreamPlayer2D" parent="PlayerSFX"]
+stream = ExtResource("9_ur7pv")
+volume_db = -4.0
+bus = &"SFX"
 
 [connection signal="animation_finished" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]
 [connection signal="timeout" from="Dash/DashDurationTimer" to="." method="_on_dash_duration_timer_timeout"]
