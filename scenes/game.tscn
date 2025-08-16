@@ -190,7 +190,7 @@ position = Vector2(-66, 0)
 shape = SubResource("WorldBoundaryShape2D_iywne")
 
 [node name="Slime" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_lnu2h")]
-position = Vector2(93, 0)
+position = Vector2(91, -2)
 player = NodePath("../Player")
 
 [node name="Player" parent="." instance=ExtResource("1_uwrxv")]
