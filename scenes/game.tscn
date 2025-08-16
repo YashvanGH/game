@@ -1,9 +1,11 @@
-[gd_scene load_steps=8 format=3 uid="uid://xbmpdm3elmul"]
+[gd_scene load_steps=10 format=3 uid="uid://xbmpdm3elmul"]
 
 [ext_resource type="PackedScene" uid="uid://d00tcpjo8mypl" path="res://scenes/player.tscn" id="1_uwrxv"]
 [ext_resource type="Texture2D" uid="uid://cyhuvwmolsbf1" path="res://assets/sprites/world_tileset.png" id="2_yqjtg"]
 [ext_resource type="PackedScene" uid="uid://dvfycuva0uy7o" path="res://scenes/kill_zone.tscn" id="3_lbhrr"]
 [ext_resource type="PackedScene" uid="uid://dv4b12o1eayex" path="res://scenes/slime.tscn" id="3_lnu2h"]
+[ext_resource type="PackedScene" uid="uid://dlc2hqotix08a" path="res://scenes/coin.tscn" id="5_iywne"]
+[ext_resource type="PackedScene" uid="uid://ccrrmu1dt0maw" path="res://scenes/music.tscn" id="6_p57ef"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("2_yqjtg")
@@ -170,7 +172,7 @@ sources/0 = SubResource("TileSetAtlasSource_lnu2h")
 distance = -98.0
 
 [node name="Game" type="Node2D"]
-position = Vector2(-9, 29)
+position = Vector2(51, 3)
 
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_lbhrr")
@@ -188,8 +190,14 @@ position = Vector2(-66, 0)
 shape = SubResource("WorldBoundaryShape2D_iywne")
 
 [node name="Slime" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_lnu2h")]
-position = Vector2(93, 0)
+position = Vector2(91, -2)
 player = NodePath("../Player")
 
 [node name="Player" parent="." instance=ExtResource("1_uwrxv")]
 position = Vector2(-88, -1)
+
+[node name="Coin" parent="." instance=ExtResource("5_iywne")]
+position = Vector2(-40, -9)
+
+[node name="Music" parent="." instance=ExtResource("6_p57ef")]
+position = Vector2(-40, -9)
