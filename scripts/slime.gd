@@ -1,4 +1,4 @@
-extends Node2D
+extends CharacterBody2D
 
 @onready var slime_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hurt_collision_radius: CollisionShape2D = $HurtZone/CollisionShape2D
@@ -48,9 +48,16 @@ func _physics_process(delta: float) -> void:
 		animate()
 		return
 		
+	add_gravity(delta)
 	animate()
 	change_direction()
 	move(delta)
+	
+	move_and_slide()
+
+func add_gravity(delta: float) -> void:
+	if not is_on_floor():
+		velocity += get_gravity() * delta
 
 func animate() -> void:
 	if is_dead:
@@ -134,13 +141,15 @@ func stop_chase() -> void:
 
 func move(delta: float) -> void:
 	if current_state == States.WANDER:
-		position.x += direction * WANDER_SPEED * delta
-		position.y = 0
+		velocity.x = direction * WANDER_SPEED
+		velocity.y = 0
 	elif current_state == States.CHASE:
 		# Move towards the player
-		var direction_to_player = (player.position - position).normalized()
-		position += direction_to_player * CHASE_SPEED * delta
-		position.y = 0
+		var direction_to_player = (player.position - position).normalized().x
+		velocity.x = direction_to_player * CHASE_SPEED
+	else:
+		# For SLEEP, IDLE, AWAKE -> stop horizontal movement
+		velocity.x = 0
 
 func _on_detection_radius_body_entered(body: Node2D) -> void:
 	print("Detected by slime.")
@@ -194,7 +203,7 @@ func _on_wander_timer_timeout() -> void:
 
 func _on_damage_zone_body_entered(body: Node2D) -> void:
 	# Might need to start using has_method as more stuff gets added
-	if body.has_method("is_falling") and body.is_falling():
+	if body == player and body.has_method("is_falling") and body.is_falling():
 		print("Player bounced on the slime!")
 		body.bounce()
 		get_hit()

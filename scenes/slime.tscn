@@ -1,4 +1,4 @@
-[gd_scene load_steps=35 format=3 uid="uid://dv4b12o1eayex"]
+[gd_scene load_steps=37 format=3 uid="uid://dv4b12o1eayex"]
 
 [ext_resource type="Script" uid="uid://dogphhkya0mx0" path="res://scripts/slime.gd" id="1_n6pvg"]
 [ext_resource type="Texture2D" uid="uid://hk1ehullxu6i" path="res://assets/sprites/slime_purple.png" id="2_pjw23"]
@@ -171,8 +171,15 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pjw23"]
+size = Vector2(14, 6)
+
+[sub_resource type="GDScript" id="GDScript_2npkn"]
+script/source = "extends CollisionShape2D
+"
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_n6pvg"]
-size = Vector2(14, 10)
+size = Vector2(14, 9)
 
 [sub_resource type="GDScript" id="GDScript_pjw23"]
 script/source = "extends Area2D
@@ -330,8 +337,9 @@ _data = {
 &"hurt": SubResource("Animation_2npkn")
 }
 
-[node name="Slime" type="Node2D"]
+[node name="Slime" type="CharacterBody2D"]
 z_index = 4
+collision_layer = 0
 script = ExtResource("1_n6pvg")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
@@ -341,11 +349,16 @@ sprite_frames = SubResource("SpriteFrames_2v7ff")
 animation = &"idle"
 autoplay = "sleep"
 
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -4)
+shape = SubResource("RectangleShape2D_pjw23")
+script = SubResource("GDScript_2npkn")
+
 [node name="HurtZone" parent="." instance=ExtResource("3_n6pvg")]
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtZone"]
-position = Vector2(0, -5)
+position = Vector2(0, -4.5)
 shape = SubResource("RectangleShape2D_n6pvg")
 
 [node name="DamageZone" type="Area2D" parent="."]
@@ -353,7 +366,7 @@ collision_mask = 2
 script = SubResource("GDScript_pjw23")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="DamageZone"]
-position = Vector2(0, -16.5)
+position = Vector2(0, -17)
 shape = SubResource("RectangleShape2D_2npkn")
 
 [node name="DetectionRadius" type="Area2D" parent="."]

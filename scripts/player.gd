@@ -42,10 +42,17 @@ const ROLL_SPEED = 1.2
 var double_jumps: int = 0
 
 # Invulnerability
+var _saved_collision_layer: int
+var _saved_collision_mask: int
+const ENEMY_LAYER := 2
 
 # parry
 # attack
 
+func _ready() -> void:
+	_saved_collision_layer = collision_layer
+	_saved_collision_mask  = collision_mask
+	
 # Might need to change this sometime => Only using it for low health for now
 func _process(delta):
 	if current_health == 1:
@@ -108,7 +115,7 @@ func animate() -> void:
 		else:
 			player_sprite.play("run")
 	
-	if not is_on_floor():
+	if not is_on_floor() and velocity.y < 0:
 		if double_jumps < 1:
 			if player_sprite.animation != "jump":
 				animation_player.play("jump")
@@ -155,11 +162,13 @@ func dash() -> void:
 		is_dashing = true
 		can_dash = false
 		
+		phase_through(true)
+		
 		dash_cooldown_timer.start()
 		dash_duration_timer.start()
 		dash_effect_timer.start()
 		
-	if is_dashing:
+	if is_dashing:	
 		if direction == 0:
 			# Dash in the direction player is facing if no directional input
 			var dash_direction = 1 if not player_sprite.flip_h else -1
@@ -191,6 +200,8 @@ func roll() -> void:
 		is_rolling = true
 		can_roll = false
 		
+		phase_through(true)
+		
 		roll_duration_timer.start()
 		roll_cooldown_timer.start()
 	
@@ -199,10 +210,8 @@ func roll() -> void:
 			# Roll in the direction player is facing if no directional input
 			var roll_direction = 1 if not player_sprite.flip_h else -1
 			velocity.x = roll_direction * RUN_SPEED * ROLL_SPEED
-			velocity.y = 0
 		else:
 			velocity.x = direction * RUN_SPEED * ROLL_SPEED
-			velocity.y = 0
 		
 func get_hit() -> void:
 	if is_invulnerable():
@@ -248,8 +257,18 @@ func is_invulnerable() -> bool:
 func is_falling() -> bool:
 	return not is_on_floor() and velocity.y > 0
 
+func phase_through(is_enabled) -> void:
+	if is_enabled:
+		# Stop colliding with enemies by turning OFF mask bit 2
+		set_collision_mask_value(ENEMY_LAYER, false)
+	else:
+		# Restore original flags
+		collision_layer = _saved_collision_layer
+		collision_mask  = _saved_collision_mask
+
 func _on_dash_duration_timer_timeout() -> void:
 	is_dashing = false
+	phase_through(false)
 	dash_effect_timer.stop()
 
 func _on_dash_cooldown_timer_timeout() -> void:
@@ -260,6 +279,7 @@ func _on_dash_effect_timer_timeout() -> void:
 
 func _on_roll_duration_timer_timeout() -> void:
 	is_rolling = false
+	phase_through(false)
 	
 func _on_roll_cooldown_timer_timeout() -> void:
 	can_roll = true
